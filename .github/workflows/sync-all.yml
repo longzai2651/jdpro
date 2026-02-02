@@ -8,8 +8,8 @@ jobs:
   sync-upstream:
     uses: longzai2651/sync-template/.github/workflows/_sync-upstream.yml@main
     with:
-      ## 原仓库地址 ###################
-      upstream-repo: "https://github.com/6dyIan6/jdpro.git" 
+      ## 原仓库地址 ## https://github.com/6dylan6/jdpro.git
+      upstream-repo: "https://github.com/6dylan6/jdpro.git" 
       branch: "main" # 同步的分支
 
   # 步骤2：同步到Gitee（依赖步骤1完成）
