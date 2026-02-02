@@ -1,0 +1,36 @@
+name: 自动同步到Gitee
+on:
+  # 当GitHub原仓库有新提交时，自动同步
+  push:
+    branches: [ main ] # 原仓库的主分支（和你的仓库一致）
+  # 每天凌晨2点定时同步（可选，防止漏同步）
+  schedule:
+    - cron: '0 18 * * *' # UTC时间18点=北京时间凌晨2点
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      # 拉取GitHub原仓库的代码
+      - name: 拉取GitHub代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # 拉取所有提交记录
+
+      # 同步到Gitee你的仓库
+      - name: 同步到Gitee
+        uses: wearerequired/git-mirror-action@master
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.GITEE_TOKEN }} # 引用步骤2配置的令牌
+        with:
+          source-repo: git@github.com:6dyIan6/jdpro.git # GitHub原仓库地址
+          destination-repo: git@gitee.com:longzai2651/jdpro.git # 你的Gitee仓库地址
+
+      # 触发Gitee仓库更新（确保Gitee页面显示最新代码）
+      - name: 触发Gitee更新
+        uses: yanglbme/gitee-pages-action@main
+        with:
+          gitee-username: longzai2651 # 你的Gitee用户名
+          gitee-token: ${{ secrets.GITEE_TOKEN }} # 引用Gitee令牌
+          gitee-repo: longzai2651/jdpro # 你的Gitee仓库
+          branch: main # 同步的分支（和原仓库一致）
