@@ -2,6 +2,7 @@ name: 自动同步（原仓库→当前仓库→Gitee）
 on:
   schedule:
     - cron: '0 18 * * *' # 每天UTC18点=北京时间凌晨2点
+  workflow_dispatch: # 新增：允许手动触发（核心！用于测试）
 
 jobs:
   # 步骤1：同步原GitHub仓库
