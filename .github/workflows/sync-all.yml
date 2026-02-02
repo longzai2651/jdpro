@@ -1,0 +1,23 @@
+name: 自动同步（原仓库→当前仓库→Gitee）
+on:
+  schedule:
+    - cron: '0 18 * * *' # 每天UTC18点=北京时间凌晨2点
+
+jobs:
+  # 步骤1：同步原GitHub仓库
+  sync-upstream:
+    uses: longzai2651/sync-template/.github/workflows/_sync-upstream.yml@main
+    with:
+      upstream-repo: "https://github.com/6dyIan6/jdpro.git" # 原仓库地址
+      branch: "main" # 同步的分支
+
+  # 步骤2：同步到Gitee（依赖步骤1完成）
+  sync-to-gitee:
+    needs: sync-upstream
+    uses: longzai2651/sync-template/.github/workflows/_sync-to-gitee.yml@main
+    with:
+      gitee-repo: "longzai2651/jdpro" # 你的Gitee仓库
+      gitee-username: "longzai2651" # 你的Gitee用户名
+      branch: "main"
+    secrets:
+      gitee-token: ${{ secrets.GITEE_TOKEN }} # 提前在该仓库配置好GITEE_TOKEN
