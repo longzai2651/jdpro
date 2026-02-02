@@ -1,0 +1,22 @@
+name: 同步原仓库更新
+on:
+  schedule:
+    - cron: '0 17 * * *' # 每天UTC17点=北京时间凌晨1点（比同步到Gitee早1小时）
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 拉取Fork的仓库
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }} # GitHub自动提供的令牌
+
+      - name: 同步原仓库
+        run: |
+          git remote add upstream https://github.com/6dyIan6/jdpro.git
+          git fetch upstream
+          git checkout main
+          git merge upstream/main --allow-unrelated-histories
+          git push origin main
