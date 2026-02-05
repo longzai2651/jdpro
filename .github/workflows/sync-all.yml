@@ -7,20 +7,53 @@ on:
 jobs:
   # 步骤1：同步原GitHub仓库
   sync-upstream:
-    uses: longzai2651/sync-template/.github/workflows/_sync-upstream.yml@main
-    with:
-      ## 原仓库地址 ## https://github.com/6dylan6/jdpro.git
-      upstream-repo: "https://github.com/6dylan6/jdpro.git" 
-      branch: "main" # 同步的分支
+    runs-on: ubuntu-latest
+    steps:
+      - name: 拉取当前仓库
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 同步原仓库
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          UPSTREAM_REPO="https://github.com/6dylan6/jdpro.git"
+          BRANCH="main"
+          git remote add upstream $UPSTREAM_REPO || git remote set-url upstream $UPSTREAM_REPO
+          git fetch upstream
+          git checkout $BRANCH
+          git merge upstream/$BRANCH --allow-unrelated-histories || git pull upstream $BRANCH
+          git push origin $BRANCH
 
   # 步骤2：同步到Gitee（依赖步骤1完成）
   sync-to-gitee:
     needs: sync-upstream
-    uses: longzai2651/sync-template/.github/workflows/_sync-to-gitee.yml@main
-    with:
-      ## Gitee仓库 ###################
-      gitee-repo: "longzai2651/jdpro" 
-      gitee-username: "longzai2651" # 你的Gitee用户名
-      branch: "main"
-    secrets:
-      gitee-token: ${{ secrets.GITEE_TOKEN }} # 提前在该仓库配置好GITEE_TOKEN
+    runs-on: ubuntu-latest
+    steps:
+      - name: 拉取当前仓库
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 配置 Git 凭据
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+      - name: 同步到Gitee
+        uses: wearerequired/git-mirror-action@master
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.GITEE_TOKEN }}
+        with:
+          source-repo: git@github.com:${{ github.repository }}.git
+          destination-repo: git@gitee.com/longzai2651/jdpro.git
+
+      - name: 触发Gitee更新
+        uses: yanglbme/gitee-pages-action@main
+        with:
+          gitee-username: longzai2651
+          gitee-token: ${{ secrets.GITEE_TOKEN }}
+          gitee-repo: longzai2651/jdpro
+          branch: main
