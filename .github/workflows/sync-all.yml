@@ -27,10 +27,10 @@ jobs:
           git merge upstream/$BRANCH --allow-unrelated-histories || git pull upstream $BRANCH
           git push origin $BRANCH
 
-  # 步骤2：同步到Gitee（依赖步骤1完成，调用可复用工作流）
+  # 步骤2：同步到Gitee（依赖步骤1完成，调用 sync-template 中的可复用工作流）
   sync-to-gitee:
     needs: sync-upstream
-    uses: ./.github/workflows/_sync-to-gitee.yml
+    uses: longzai2651/sync-template/.github/workflows/_sync-to-gitee.yml@main
     with:
       gitee-repo: longzai2651/jdpro
       gitee-username: longzai2651
