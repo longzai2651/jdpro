@@ -2,7 +2,7 @@ name: 自动同步（原仓库→当前仓库→Gitee）
 on:
   schedule:
     - cron: '0 18 * * *' # 每天UTC18点=北京时间凌晨2点
-  workflow_dispatch: # 新增：允许手动触发（核心！用于测试）
+  workflow_dispatch: # 允许手动触发（用于测试）
 
 jobs:
   # 步骤1：同步原GitHub仓库
@@ -27,33 +27,13 @@ jobs:
           git merge upstream/$BRANCH --allow-unrelated-histories || git pull upstream $BRANCH
           git push origin $BRANCH
 
-  # 步骤2：同步到Gitee（依赖步骤1完成）
+  # 步骤2：同步到Gitee（依赖步骤1完成，调用可复用工作流）
   sync-to-gitee:
     needs: sync-upstream
-    runs-on: ubuntu-latest
-    steps:
-      - name: 拉取当前仓库
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: 配置 Git 凭据
-        run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-
-      - name: 同步到Gitee
-        uses: wearerequired/git-mirror-action@master
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.GITEE_TOKEN }}
-        with:
-          source-repo: git@github.com:${{ github.repository }}.git
-          destination-repo: git@gitee.com/longzai2651/jdpro.git
-
-      - name: 触发Gitee更新
-        uses: yanglbme/gitee-pages-action@main
-        with:
-          gitee-username: longzai2651
-          gitee-token: ${{ secrets.GITEE_TOKEN }}
-          gitee-repo: longzai2651/jdpro
-          branch: main
+    uses: ./.github/workflows/_sync-to-gitee.yml
+    with:
+      gitee-repo: longzai2651/jdpro
+      gitee-username: longzai2651
+      branch: main
+    secrets:
+      GITEE_SSH_KEY: ${{ secrets.GITEE_SSH_KEY }}
