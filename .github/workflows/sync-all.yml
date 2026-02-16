@@ -35,6 +35,8 @@ jobs:
       gitee-repo: longzai2651/jdpro
       gitee-username: longzai2651
       branch: main
+      # 已配置 GITEE_PASSWORD 且需触发 Gitee Pages 时改为 'true'
+      trigger-gitee-pages: 'false'
     secrets:
       GITEE_SSH_KEY: ${{ secrets.GITEE_SSH_KEY }}
       GITEE_PASSWORD: ${{ secrets.GITEE_PASSWORD }}
