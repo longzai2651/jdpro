@@ -37,3 +37,4 @@ jobs:
       branch: main
     secrets:
       GITEE_SSH_KEY: ${{ secrets.GITEE_SSH_KEY }}
+      GITEE_PASSWORD: ${{ secrets.GITEE_PASSWORD }}
